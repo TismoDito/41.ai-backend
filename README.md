@@ -15,3 +15,8 @@ pip install -r requierments.txt
 ## Each file
 `App.py` - Handles requests.
 `utils.py` - Handles synthesis.
+
+
+---
+
+PRs and Forks are welcome ;)
