@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="https://synthapp.haysay.ai/static/favicon.gif">
+    <title>41.ai</title>
+    
+
+<style>
+  html, body {
+    height: 100%;
+}
+
+html {
+    display: table;
+    margin: auto;
+}
+
+body {
+    font-size: 1.3em;
+}
+
+audio {
+    width: 100%;
+}
+
+option {
+    font-size: 0.9em;
+
+}
+
+textarea {
+    width: 97%;
+    resize: both;
+    font-size: 1em;
+    
+}
+
+@media screen and (min-device-width: 620px) {
+    textarea {
+        width: 600px;
+    }
+}
+
+@media screen and (max-device-width: 620px) {
+    html {
+        width: 100%;
+    }
+}
+
+#layer_blend_model, #layer_blend_name {
+    width: 125px;
+}
+
+select {
+    width: 100%;
+    font-size: 0.8em;
+}
+
+#voice_blend {
+    font-size: 0.8em;
+}
+
+#random_prompt {
+    float:right;
+}
+
+.credits {
+    color: gray;
+    font-size: 12px;
+}
+
+.box {
+    border: 1px solid gray;
+    padding: 2px;
+}
+
+.warn {
+    color: red;
+}
+
+.banner {
+    color: white;
+    font-size: 30px;
+    background: rgb(0, 110, 255);
+    background: linear-gradient(90deg, rgb(21, 0, 70) 0%, rgb(110, 158, 255) 100%);
+    padding: 2px;
+}
+
+.label {
+    margin-bottom: 5px;
+    display: block;
+}
+
+.right {
+    float: right;
+}
+
+.padup {
+    margin-top: 4px;
+}
+
+#more_options.show {
+    display: block !important;
+}
+</style>
+</head>
+<body data-new-gr-c-s-check-loaded="14.1249.0" data-gr-ext-installed="">
+    <input type="hidden" name="csrfmiddlewaretoken" value="ztcuduZa4WX6mqCyUmFiRUXGdMIyRpaMeQ0fURGXZYV1tAQ7vBtwsKqJBdz1Yk3D">
+    <p class="banner">41.ai</p>
+    <label for="sorce">Source:</span>
+    <select id="sorce" class="voice"></select>
+    <span class="label">Character:</span>
+    <select id="voice"></select>
+
+    <br>
+    <button id="more">Options</button>
+    <button id="voice_refresh">Refresh</button>
+    
+    
+    <div id="more_options" class="box" style="display: none"> 
+    <span>Super resolution strength:</span> <input type="number" name="Super_Res_S" id="Super_Res_S", value="4"> <br>
+    <span>Max decoder steps:</span> <input type="number" name="maxdecode" id="maxdecode", value="3000"> 1 second = 80 steps <br> 
+    <span>Gate threshold:</span> <input type="number" name="gate_tresh" id="gate_tresh", value="0.25"> <br>
+    <span>ARPAbet Converstion</span> <input type="checkbox" name="arpabet_conv" id="arpabet_conv", value="Yes">
+    </div>
+    <hr>
+    <br>
+    
+
+    <span class="label">Text:</span>
+    <textarea id="text" name="text" rows="4" required=""></textarea>
+    <br>
+    <input type="button" id="generate" value="Generate">
+    <button id="random_prompt">Random</button>
+    <span id="info"></span>
+    <br>
+    <br>
+
+    <audio id="player1" controls="" style="display: none;">
+      Your browser does not support the audio element.
+    </audio> 
+    <span id="player_loading" style="display: none;">Loading...</span><span id="timer"></span>
+
+    <br><br>
+
+    <br>
+    <hr>
+
+    <div class="credits">
+        <h3>Credits:</h3>
+        DodoTheGamer (App)<br>
+        Hecko (The current MLP model available) <br>
+        ZFW (owner of uberduck) <br>
+        /PPP/ (MLP and TF2 Datasets) <br>
+        Hydrusbeta (Frontend UI, taken from synthapp.haysay.ai)
+        
+        <span style="color: green">Anons from /mlp/ and uberduck.ai<br> 
+        <br>
+        <a href="https://github.com/TheDevloper2023/uberduck-ml-dev/tree/finger-lrdecay/uberduck_ml_dev">Uberduck Tacotron Pipeline</a> <br>
+        <a href="https://github.com/jik876/hifi-gan">HiFi-GAN: Generative Adversarial Networks<br> for Efficient and High Fidelity Speech Synthesis</a>
+    </span></div>
+    
+
+
+
+<script>
+
+async function loadSources() {
+    try {
+        let response = await fetch("/voices"); // this should return a list of source model names
+        let sources = await response.json();
+
+        const sourceSelect = document.getElementById("sorce");
+        sourceSelect.innerHTML = "";
+
+        sources.forEach(src => {
+            const option = document.createElement("option");
+            option.value = src;
+            option.textContent = src;
+            sourceSelect.appendChild(option);
+        });
+
+        // auto-load voices for the first source
+        if (sources.length > 0) {
+            loadVoicesForSource(sources[0]);
+        }
+
+        // update voices whenever the source changes
+        sourceSelect.addEventListener("change", (e) => {
+            loadVoicesForSource(e.target.value);
+        });
+
+    } catch (err) {
+        console.error("Error loading sources:", err);
+    }
+}
+
+async function loadVoicesForSource(source) {
+    try {
+        let response = await fetch(`/GetSpeakerIds/${source}`, { method: "POST" });
+        let data = await response.json();
+
+        if (data.error) {
+            console.error("Error:", data.error);
+            return;
+        }
+
+        const voiceSelect = document.getElementById("voice");
+        voiceSelect.innerHTML = "";
+
+        data.voices.forEach(v => {
+            const option = document.createElement("option");
+            option.value = v.id;       // backend can use ID
+            option.textContent = v.name; // user sees name
+            voiceSelect.appendChild(option);
+        });
+    } catch (err) {
+        console.error("Error loading voices for source:", err);
+    }
+}
+
+
+// run at startup
+document.addEventListener("DOMContentLoaded", loadSources);
+document.getElementById("voice_refresh").addEventListener("click", loadSources)
+  
+</script>
+<script>
+async function synthesize() {
+    const source = document.getElementById("sorce").value;
+    const speaker = document.getElementById("voice").value;
+    const text = document.getElementById("text").value.trim();
+
+    if (!text) {
+        alert("Please enter some text!");
+        return;
+    }
+
+    const player = document.getElementById("player1");
+    const loading = document.getElementById("player_loading");
+
+    loading.style.display = "inline";
+    player.style.display = "none";
+
+    try {
+        // Step 1: submit TTS job
+        let response = await fetch("/tts", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            //arpabet_conv gate_tresh maxdecode
+            body: JSON.stringify({
+            voice: source,
+            speaker: parseInt(speaker),
+            text: text,
+            superress: 4,
+            arpaconv: true,
+            gate_tresh: 0.25,
+            maxdecode: 3000
+            })
+        });
+        let job = await response.json();
+
+        if (!job.job_id) {
+            throw new Error("Failed to start job: " + JSON.stringify(job));
+        }
+
+        const jobId = job.job_id;
+
+        // Step 2: poll status until done
+        let status = "pending";
+        while (status !== "done") {
+            await new Promise(r => setTimeout(r, 1000)); // wait 1s
+            let st = await fetch(`/status/${jobId}`);
+            let data = await st.json();
+            status = data.status;
+            if (status === "error") {
+                throw new Error("Synthesis failed.");
+            }
+        }
+
+        // Step 3: fetch audio and play
+        const audioUrl = `/download/${jobId}`;
+        player.src = audioUrl;
+        player.style.display = "block";
+        player.play();
+
+    } catch (err) {
+        console.error("Error during synthesis:", err);
+        alert("Error during synthesis. Check console.");
+    } finally {
+        loading.style.display = "none";
+    }
+}
+
+// Hook up button
+document.addEventListener("DOMContentLoaded", () => {
+    loadSources();
+    document.getElementById("generate").addEventListener("click", synthesize);
+});
+</script>
+
+
+<script>
+    
+var max_length = 300;
+var warn_length = 250;
+const textbox = document.getElementById("text")
+const optionsBtn = document.getElementById("more")
+const optionsBox = document.getElementById("more_options")
+const randomBtn = document.getElementById("random_prompt")
+// =========== Text char counter
+textbox.addEventListener("input", e => {
+
+    let length = e.target.value.length;
+
+    let info_string = '(' + length + ')';
+    if (length > warn_length) {
+        info_string = '<span class="warn">' + info_string + '</span>'
+    }
+    document.getElementById("info").innerHTML = info_string;
+});
+
+
+
+randomBtn.addEventListener("click", random_prompt_gen);
+
+function random_prompt_gen() {
+    const prompts = [
+        `Press any key to continue.`,
+        `What the fuck did you just fucking say about me, you little bitch? I'll have you know I graduated top of my class in the Navy Seals, and I've been involved in numerous secret raids on Al-Quaeda, and I have over 300 confirmed kills.`,
+        `Welcome to Stack Overflow! Questions seeking debugging help must include the desired behavior, a specific problem or error and the shortest code necessary to reproduce it in the question itself. Questions without a clear problem statement are not useful.`,
+        `Some computer users run a modified version of the Emacs system every day, without realizing it. Through a peculiar turn of events, the version of Emacs which is widely used today is often called Linux, and many of its users are not aware that it is basically the Emacs system, developed by the GNU Project.`,
+        `THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.`,
+        `The very essence of a mare pony, similar to their soul, but something so profound that transcends such a mundane term and thus necessitates its own word. "I love mares, especially their snowpitys."`,
+        `Green is my filly.`,
+        `Let it be known that the code shall be thy companion, not thy master, and all who wield it shall be free from the shackles of proprietary software.`,
+        `I’ll have two number 9s, a number 9 large, a number 6 with extra dip, a number 7, two number 45s, one with cheese, and a large soda.`,
+        `I thank you for your participation and hope we can count on you for another round of tests.`,
+        `Nobody expects the Equestrian Inquisition!`,
+        `That coffee I gave you earlier had fluorescent calcium in it so I can track the neuronal activity in your brain.`,
+        `They're telling me I oughtta stop making these pre-recorded messages!. That gave me an idea!... make more pre-recorded messages! I pay the bills here! I can talk about the control group all damn day.`,
+        `First shalt thou take out the Holy Pin. Then shalt thou count to three. no more, no less. Lobbest thou thy Holy Hand Grenade of Antioch towards thy foe, who, being naughty in My sight. shall snuff it.`,
+    ];
+    const random = Math.floor(Math.random() * prompts.length);
+    document.getElementById("text").value = prompts[random];
+
+    const event = new Event('input');
+    textbox.dispatchEvent(event);
+}
+
+optionsBtn.addEventListener("click", () => {
+            optionsBox.classList.toggle("show");
+        });
+
+</script>

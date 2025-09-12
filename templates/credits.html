@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="https://synthapp.haysay.ai/static/favicon.gif">
+    <title>41.ai</title>
+    <style>
+        html, body {
+            height: 100%;
+            background-color: rgb(226, 241, 255);
+            font-family: Arial, Helvetica, sans-serif
+        }
+
+        button, input[type="button"] {
+            background-color: #6891df;
+            border-radius: 3px;
+            border-color: #4d78c8;
+            border-style: solid;
+            border-width: 3px;
+            padding: 2px 5px;
+            color: white;
+        }
+
+        .card {
+            background-color: rgb(243, 249, 255);
+            padding: 20px;
+            height: 85%;
+            border-width: 3px;
+        }
+
+        html {
+            display: table;
+            margin: auto;
+        }
+
+        body {
+            font-size: 1rem;
+        }
+
+        audio {
+            width: 100%;
+        }
+
+        option {
+            font-size: 0.9em;
+        }
+
+        select {
+            background: rgb(226, 241, 255);
+            border: 2px solid  rgb(130, 199, 219);
+        }
+
+        textarea {
+            width: 97%;
+            resize: both;
+            font-size: 1em;
+            background: rgb(235, 245, 255);
+            border: 2px solid  rgb(151, 208, 224);
+            border-radius: 3px;
+        }
+
+        @media screen and (min-device-width: 620px) {
+            textarea {
+                width: 600px;
+            }
+        }
+
+        @media screen and (max-device-width: 620px) {
+            html {
+                width: 100%;
+            }
+        }
+
+        #layer_blend_model, #layer_blend_name {
+            width: 125px;
+        }
+
+        select {
+            width: 100%;
+            font-size: 1rem;
+            border-radius: 3px;
+        }
+
+        #voice_blend {
+            font-size: 1rem;
+        }
+
+        #random_prompt {
+            float:right;
+        }
+
+        .credits {
+            color: rgb(83, 123, 134);
+            font-size: 12px;
+        }
+
+        .box {
+            background-color: rgb(243, 249, 255);
+            padding: 20px;
+            height: 85%;
+            border-width: 3px;
+        }
+
+        .warn {
+            color: red;
+        }
+
+        .banner {
+            color: white;
+            font-size: 30px;
+            background:  #232d73;
+            background: linear-gradient(100deg, #232d73 2%, #6e9eff 100%);
+            padding: 2.3px;
+            border-radius: 3.5px;
+        }
+
+        .label {
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .right {
+            float: right;
+        }
+
+        .padup {
+            margin-top: 4px;
+        }
+
+        #more_options.show {
+            display: block !important;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+        
+        .metadata-box {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f0f8ff;
+            border: 1px solid #6891df;
+            border-radius: 5px;
+        }
+        
+        .metadata-box h3 {
+            margin-top: 0;
+            color: #232d73;
+        }
+        
+        .metadata-value {
+            font-weight: bold;
+            color: #4d699d;
+        }
+    </style>
+</head>
+<body>
+    <p class="banner">41.ai</p>
+    <h2>Credits</h2>
+    <div class="box">
+        <h3>Architectures used:</h3>
+        <a href="https://github.com/TheDevloper2023/uberduck-ml-dev">The Uberduck Pipeline (My fork of it)</a> - Legacy Tacotron2 and the "Pipeline" Models <br>
+        <a href="https://github.com/TheDevloper2023/hifi-gan">hifi-gan (My fork of it)</a> - Vocoder <br>
+        <a href="https://github.com/OHF-Voice/piper1-gpl/blob/main/docs/API_PYTHON.md">Piper TTS</a> - VITS <br>
+        <a href="https://github.com/NVIDIA/mellotron">Mellotron</a> - Tacotron2 2 2 <br>
+        <a href=""
+    </div>
+
+    <br><br>
+
+    <div class="box">
+        <h3>Special Thanks to:</h3>
+        <b>.Hecko</b> - Models, original Tacotron2 Pipeline notebooks and help with hosting the site <br>
+        <b>Gosmokeless28</b> - Help with obtaining various datasets, assistance with training <br>
+        <b>ShiverThermal</b> - Datasets, the 41.ai logo, Models, and some fixes to the training notebook<br>
+        <b>Twilight Sparkle (lanaloud125, not the pony)</b> - Models, Datasets. <br>
+        <b>KenjoPlays</b> - Models <br>
+        <b>EthanRhys</b> - Models <br>
+        <p style="color:green">The /PPP/ and Uberduck communities</p>
+    </div>
+
+    <br><br>
+    <div class="box">
+        <h3>Things I have plagiarized from:</h3>
+        <b>The Uberduck community</b> - SpongeBob datasets <br>
+        <b>SortAnon</b> - The Denoising and Super Resolution code. <br>
+        <b>CookiePPP</b> - The Vocoder trainer notebook, Universal 44khz hifi-gan model <br>
+    </div>
+
+
+    <br><br>
+    <a href="/">Back to synthesis</a>
+
+</body>
+</html>
